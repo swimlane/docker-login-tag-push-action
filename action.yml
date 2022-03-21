@@ -1,0 +1,55 @@
+name: 'Docker Login Tag and Push'
+description: 'Logs tags and pushes image into Registry'
+
+inputs:
+  image:
+    description: 'Local image name. Assumes repository not present and tag present.'
+    required: true
+  repo:
+    description: 'Registry host name'
+    required: true
+  username:
+    description: 'Registry username'
+    required: true
+  password:
+    description: 'Registry password'
+    required: true
+  tag:
+    description: 'New tag if retagging is needed'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get new image name
+      id: new-image-name
+      uses: actions/github-script@v5
+      env:
+        repo: ${{ inputs.repo }}
+        tag: ${{ inputs.tag }}
+        image: ${{ inputs.image }}
+      with:
+        script: |
+          const { repo, tag, image } = process.env;
+          if (tag) {
+            const arr=image.split(':');
+            arr[arr.length - 1]=tag;
+            core.setOutput('image', repo+'/'+arr.join(':'));
+          } else {
+            core.setOutput('image', repo+'/'+image);
+          }
+
+    - name: Login
+      id: login
+      uses: ./.github/actions/docker-login-cli
+      with:
+        repo: ${{ inputs.repo}}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+        
+    - name: Tag and Push
+      id: tag-push
+      shell: bash
+      run: |
+        docker tag ${{ inputs.image }} ${{ steps.new-image-name.outputs.image }}
+        docker push ${{ steps.new-image-name.outputs.image }}

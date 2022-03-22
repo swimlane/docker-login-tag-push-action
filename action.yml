@@ -40,13 +40,12 @@ runs:
           }
 
     - name: Login
-      id: login
-      uses: ./.github/actions/docker-login-cli
+      uses: docker/login-action@v1
       with:
-        repo: ${{ inputs.repo}}
+        registry: ${{ inputs.repo}}
         username: ${{ inputs.username }}
         password: ${{ inputs.password }}
-        
+   
     - name: Tag and Push
       id: tag-push
       shell: bash

@@ -31,15 +31,16 @@ runs:
       with:
         script: |
           let { repo, tag, image } = process.env;
+          repo = repo ? repo + '/' : repo;
           const fullName = image.split('/');
           if (fullName.length == 2 && fullName[0].Contains('.')) image = fullName[1];
           else if (fullName.length > 2) image = fullName.slice(-2).join('/');
           if (tag) {
             const arr=image.split(':');
             arr[arr.length - 1]=tag;
-            core.setOutput('image', repo+'/'+arr.join(':'));
+            core.setOutput('image', repo+arr.join(':'));
           } else {
-            core.setOutput('image', repo+'/'+image);
+            core.setOutput('image', repo+image);
           }
 
     - name: Docker Login

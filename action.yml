@@ -23,7 +23,7 @@ runs:
   steps:
     - name: Get new image name
       id: new-image-name
-      uses: actions/github-script@v5
+      uses: actions/github-script@v7
       env:
         repo: ${{ inputs.repo }}
         tag: ${{ inputs.tag }}
@@ -45,19 +45,19 @@ runs:
 
     - name: Docker Login
       if: inputs.repo == ''
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         username: ${{ inputs.username }}
         password: ${{ inputs.password }}
 
     - name: Login
       if: inputs.repo != ''
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         registry: ${{ inputs.repo}}
         username: ${{ inputs.username }}
         password: ${{ inputs.password }}
-   
+
     - name: Tag and Push
       id: tag-push
       shell: bash
